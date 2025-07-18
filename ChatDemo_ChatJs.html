@@ -4,6 +4,7 @@
     <title>Amazon Connect Chat Demo</title>
     <script src="https://unpkg.com/amazon-connect-chatjs@latest"></script>
   </head>
+
   <body>
     <div>
       <h2>Amazon Connect Chat Demo</h2>
@@ -186,6 +187,36 @@
           chatSession.onEnded(() => {
             displayMessage("System", "Chat ended");
             disableChatControls();
+          });
+
+          chatSession.onParticipantIdle((event) => {
+            const { chatDetails, data } = event;
+            if (data.ParticipantRole === "CUSTOMER") {
+              displayMessage(
+                "System",
+                `${data.DisplayName} (${data.ParticipantRole}) has become idle`
+              );
+            }
+          });
+
+          chatSession.onParticipantReturned((event) => {
+            const { chatDetails, data } = event;
+            if (data.ParticipantRole === "CUSTOMER") {
+              displayMessage(
+                "System",
+                `${data.DisplayName} (${data.ParticipantRole}) is no longer idle`
+              );
+            }
+          });
+
+          chatSession.onAutoDisconnection((event) => {
+            const { chatDetails, data } = event;
+            if (data.ParticipantRole === "CUSTOMER") {
+              displayMessage(
+                "System",
+                `${data.DisplayName} (${data.ParticipantRole}) has been idle too long, disconnected`
+              );
+            }
           });
         } catch (error) {
           console.error("Failed to start chat:", error);
