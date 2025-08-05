@@ -73,6 +73,12 @@
         },
       });
       amazon_connect("customizationObject", {
+        header: {
+          dropdown: true,
+        },
+        footer: {
+          disabled: false,
+        },
         transcript: {
           eventMessages: {
             participantJoined: "{name} has joined the chat",
