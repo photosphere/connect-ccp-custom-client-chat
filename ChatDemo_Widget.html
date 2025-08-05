@@ -72,6 +72,27 @@
           startCallButtonBackgroundColor: "#539b52",
         },
       });
+      amazon_connect("customizationObject", {
+        transcript: {
+          eventMessages: {
+            participantJoined: "{name} has joined the chat",
+            participantDisconnect: "",
+            participantLeft: "{name} has dropped",
+            participantIdle: "{name}, are you still there?",
+            participantReturned: "",
+            chatEnded: "Chat ended",
+          },
+        },
+        endChat: {
+          enableConfirmationDialog: true,
+          confirmationDialogText: {
+            title: "End Chat",
+            message: "Are you sure you want to end this chat?",
+            confirmButtonText: "End Chat",
+            cancelButtonText: "Cancel",
+          },
+        },
+      });
     </script>
   </body>
 </html>
