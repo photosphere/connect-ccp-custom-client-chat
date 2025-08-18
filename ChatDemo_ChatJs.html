@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Amazon Connect Chat Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://unpkg.com/amazon-connect-chatjs@latest"></script>
@@ -13,7 +13,9 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto,
+          sans-serif;
         background: #ededed;
         height: 100vh;
         display: flex;
@@ -280,6 +282,31 @@
       const customerName = document.getElementById("customerName");
       const chatMessages = document.getElementById("chatMessages");
 
+      // 页面加载时检查是否需要恢复聊天会话
+      window.addEventListener("load", async () => {
+        const existingChatDetails = sessionStorage.getItem(
+          "chatjs-session-chat-details"
+        );
+        if (existingChatDetails) {
+          try {
+            connect.ChatSession.setGlobalConfig({ region: "us-east-1" });
+            const reloadedChatSession = connect.ChatSession.create({
+              chatDetails: JSON.parse(existingChatDetails),
+              options: { region: "us-east-1" },
+              type: "CUSTOMER",
+              disableCSM: true,
+            });
+            await reloadedChatSession.connect();
+            chatSession = reloadedChatSession;
+            setupChatEventHandlers();
+            displayMessage("System", "Chat session restored");
+          } catch (error) {
+            console.error("Failed to restore chat session:", error);
+            sessionStorage.removeItem("chatjs-session-chat-details");
+          }
+        }
+      });
+
       // Start Chat button handler
       startChatBtn.addEventListener("click", async () => {
         const name = customerName.value.trim();
@@ -324,6 +351,15 @@
 
           const chatDetails = await response.json();
           console.log("Chat details:", chatDetails);
+          sessionStorage.setItem(
+            "chatjs-session-chat-details",
+            JSON.stringify({
+              contactId: chatDetails.data.startChatResult.ContactId,
+              participantId: chatDetails.data.startChatResult.ParticipantId,
+              participantToken:
+                chatDetails.data.startChatResult.ParticipantToken,
+            })
+          );
 
           // Initialize chat session
           chatSession = connect.ChatSession.create({
@@ -340,118 +376,7 @@
 
           // Connect to chat
           await chatSession.connect();
-
-          // Set up event handlers
-          chatSession.onMessage((message) => {
-            if (message.data) {
-              const content =
-                typeof message.data === "string"
-                  ? JSON.parse(message.content)
-                  : message.data;
-
-              if (
-                (content.ContentType === "text/plain" ||
-                  content.ContentType === "text/markdown") &&
-                content.Content
-              ) {
-                // Text message
-                if (content.ParticipantRole !== "CUSTOMER") {
-                  displayMessage(
-                    content.DisplayName || "Agent",
-                    content.Content
-                  );
-                } else {
-                  displayMessage(
-                    content.DisplayName || "Customer",
-                    content.Content
-                  );
-                }
-              } else if (
-                content.ContentType ===
-                "application/vnd.amazonaws.connect.event.typing"
-              ) {
-                // Typing event
-                if (content.ParticipantRole !== "CUSTOMER") {
-                  displayMessage(
-                    "System",
-                    `${content.DisplayName} is typing...`
-                  );
-                }
-              } else if (
-                content.ContentType ===
-                "application/vnd.amazonaws.connect.event.participant.joined"
-              ) {
-                // Participant joined
-                displayMessage(
-                  "System",
-                  `${content.DisplayName} (${content.ParticipantRole}) has joined the chat`
-                );
-              } else if (
-                content.ContentType ===
-                "application/vnd.amazonaws.connect.event.participant.left"
-              ) {
-                // Participant left
-                displayMessage(
-                  "System",
-                  `${content.DisplayName} (${content.ParticipantRole}) has left the chat`
-                );
-              } else if (
-                content.ContentType ===
-                "application/vnd.amazonaws.connect.event.chat.ended"
-              ) {
-                // Chat ended
-                displayMessage("System", "Chat has ended");
-                disableChatControls();
-              }
-            }
-          });
-
-          chatSession.onConnectionEstablished(() => {
-            displayMessage("System", "Chat connected successfully");
-            enableChatControls();
-            // 高亮结束聊天按钮
-            endChatBtn.classList.add('highlight');
-          });
-
-          chatSession.onConnectionBroken(() => {
-            displayMessage("System", "Chat connection lost");
-            disableChatControls();
-          });
-
-          chatSession.onEnded(() => {
-            displayMessage("System", "Chat ended");
-            disableChatControls();
-          });
-
-          chatSession.onParticipantIdle((event) => {
-            const { chatDetails, data } = event;
-            if (data.ParticipantRole === "CUSTOMER") {
-              displayMessage(
-                "System",
-                `${data.DisplayName} (${data.ParticipantRole}) has become idle`
-              );
-            }
-          });
-
-          chatSession.onParticipantReturned((event) => {
-            const { chatDetails, data } = event;
-            if (data.ParticipantRole === "CUSTOMER") {
-              displayMessage(
-                "System",
-                `${data.DisplayName} (${data.ParticipantRole}) is no longer idle`
-              );
-            }
-          });
-
-          chatSession.onAutoDisconnection((event) => {
-            const { chatDetails, data } = event;
-            if (data.ParticipantRole === "CUSTOMER") {
-              displayMessage(
-                "System",
-                `${data.DisplayName} (${data.ParticipantRole}) has been idle too long, disconnected`
-              );
-            }
-          });
+          setupChatEventHandlers();
         } catch (error) {
           console.error("Failed to start chat:", error);
           displayMessage("System", `Error: ${error.message}`);
@@ -460,6 +385,147 @@
           startChatBtn.disabled = false;
         }
       });
+
+      function setupChatEventHandlers() {
+        chatSession.onMessage((message) => {
+          if (message.data) {
+            const content =
+              typeof message.data === "string"
+                ? JSON.parse(message.content)
+                : message.data;
+
+            if (
+              (content.ContentType === "text/plain" ||
+                content.ContentType === "text/markdown") &&
+              content.Content
+            ) {
+              // Text message
+              if (content.ParticipantRole !== "CUSTOMER") {
+                displayMessage(content.DisplayName || "Agent", content.Content);
+              } else {
+                displayMessage(
+                  content.DisplayName || "Customer",
+                  content.Content
+                );
+              }
+            } else if (
+              content.ContentType ===
+              "application/vnd.amazonaws.connect.event.typing"
+            ) {
+              // Typing event
+              if (content.ParticipantRole !== "CUSTOMER") {
+                displayMessage("System", `${content.DisplayName} is typing...`);
+              }
+            } else if (
+              content.ContentType ===
+              "application/vnd.amazonaws.connect.event.participant.joined"
+            ) {
+              // Participant joined
+              displayMessage(
+                "System",
+                `${content.DisplayName} (${content.ParticipantRole}) has joined the chat`
+              );
+            } else if (
+              content.ContentType ===
+              "application/vnd.amazonaws.connect.event.participant.left"
+            ) {
+              // Participant left
+              displayMessage(
+                "System",
+                `${content.DisplayName} (${content.ParticipantRole}) has left the chat`
+              );
+            } else if (
+              content.ContentType ===
+              "application/vnd.amazonaws.connect.event.chat.ended"
+            ) {
+              // Chat ended
+              displayMessage("System", "Chat has ended");
+              disableChatControls();
+            }
+          }
+        });
+
+        chatSession.onConnectionEstablished((event) => {
+          const { chatDetails, data } = event;
+          if (typeof data === "undefined") {
+            displayMessage("System", "Chat connected successfully");
+
+            enableChatControls();
+            // 高亮结束聊天按钮
+            endChatBtn.classList.add("highlight");
+
+            // 加载聊天历史记录
+            chatSession
+              .getTranscript({
+                scanDirection: "BACKWARD",
+                sortOrder: "ASCENDING",
+                maxResults: 15,
+              })
+              .then((response) => {
+                const {
+                  InitialContactId,
+                  NextToken,
+                  Transcript: latestTranscript,
+                } = response.data;
+                if (latestTranscript && latestTranscript.length > 0) {
+                  latestTranscript.forEach((item) => {
+                    if (item.ContentType === "text/plain" && item.Content) {
+                      const sender =
+                        item.ParticipantRole === "CUSTOMER"
+                          ? "Customer"
+                          : item.DisplayName || "Agent";
+                      displayMessage(sender, item.Content);
+                    }
+                  });
+                }
+              })
+              .catch((error) => {
+                console.log("No chat history available:", error);
+              });
+          }
+        });
+
+        chatSession.onConnectionBroken(() => {
+          displayMessage("System", "Chat connection lost");
+          disableChatControls();
+        });
+
+        chatSession.onEnded(() => {
+          displayMessage("System", "Chat ended");
+          disableChatControls();
+          sessionStorage.removeItem("chatjs-session-chat-details");
+        });
+
+        chatSession.onParticipantIdle((event) => {
+          const { chatDetails, data } = event;
+          if (data.ParticipantRole === "CUSTOMER") {
+            displayMessage(
+              "System",
+              `${data.DisplayName} (${data.ParticipantRole}) has become idle`
+            );
+          }
+        });
+
+        chatSession.onParticipantReturned((event) => {
+          const { chatDetails, data } = event;
+          if (data.ParticipantRole === "CUSTOMER") {
+            displayMessage(
+              "System",
+              `${data.DisplayName} (${data.ParticipantRole}) is no longer idle`
+            );
+          }
+        });
+
+        chatSession.onAutoDisconnection((event) => {
+          const { chatDetails, data } = event;
+          if (data.ParticipantRole === "CUSTOMER") {
+            displayMessage(
+              "System",
+              `${data.DisplayName} (${data.ParticipantRole}) has been idle too long, disconnected`
+            );
+          }
+        });
+      }
 
       // End Chat button handler
       endChatBtn.addEventListener("click", () => {
@@ -493,7 +559,6 @@
             contentType: "text/plain",
           });
 
-          displayMessage(customerName.value || "Customer", message);
           messageInput.value = "";
         } catch (error) {
           console.error("Failed to send message:", error);
@@ -533,10 +598,11 @@
       function disableChatControls() {
         startChatBtn.disabled = false;
         endChatBtn.disabled = true;
-        endChatBtn.classList.remove('highlight');
+        endChatBtn.classList.remove("highlight");
         sendBtn.disabled = true;
         messageInput.disabled = true;
         customerName.disabled = false;
+        sessionStorage.removeItem("chatjs-session-chat-details");
       }
     </script>
   </body>
