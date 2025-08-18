@@ -2,43 +2,272 @@
 <html>
   <head>
     <title>Amazon Connect Chat Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://unpkg.com/amazon-connect-chatjs@latest"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #ededed;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-container {
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .chat-header {
+        background: #07c160;
+        color: white;
+        padding: 15px 20px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .chat-setup {
+        padding: 20px;
+        background: #f7f7f7;
+        border-bottom: 1px solid #e5e5e5;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #d9d9d9;
+        border-radius: 6px;
+        font-size: 16px;
+        outline: none;
+      }
+
+      .input-group input:focus {
+        border-color: #07c160;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: #07c160;
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: #06ad56;
+      }
+
+      .btn-secondary {
+        background: #f5f5f5;
+        color: #333;
+      }
+
+      .btn-secondary.highlight {
+        background: #ff6b35;
+        color: white;
+        box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f7f7f7;
+      }
+
+      .message {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: flex-end;
+      }
+
+      .message.customer {
+        justify-content: flex-end;
+      }
+
+      .message.agent {
+        justify-content: flex-start;
+      }
+
+      .message.system {
+        justify-content: center;
+      }
+
+      .message-bubble {
+        max-width: 70%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        word-wrap: break-word;
+        position: relative;
+      }
+
+      .message.customer .message-bubble {
+        background: #07c160;
+        color: white;
+        border-bottom-right-radius: 6px;
+      }
+
+      .message.agent .message-bubble {
+        background: white;
+        color: #333;
+        border: 1px solid #e5e5e5;
+        border-bottom-left-radius: 6px;
+      }
+
+      .message.system .message-bubble {
+        background: #f0f0f0;
+        color: #666;
+        font-size: 14px;
+        border-radius: 12px;
+        max-width: 80%;
+      }
+
+      .message-input-container {
+        padding: 15px 20px;
+        background: white;
+        border-top: 1px solid #e5e5e5;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .message-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid #d9d9d9;
+        border-radius: 20px;
+        font-size: 16px;
+        outline: none;
+        resize: none;
+      }
+
+      .message-input:focus {
+        border-color: #07c160;
+      }
+
+      .send-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 50%;
+        background: #07c160;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+      }
+
+      .send-btn:hover:not(:disabled) {
+        background: #06ad56;
+      }
+
+      .send-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      @media (max-width: 768px) {
+        .chat-container {
+          height: 100vh;
+          max-width: 100%;
+        }
+
+        .chat-header {
+          padding: 12px 15px;
+          font-size: 16px;
+        }
+
+        .chat-setup {
+          padding: 15px;
+        }
+
+        .message-bubble {
+          max-width: 85%;
+        }
+
+        .message-input-container {
+          padding: 10px 15px;
+        }
+
+        .btn-group {
+          flex-direction: column;
+        }
+      }
+    </style>
   </head>
 
   <body>
-    <div>
-      <h2>Amazon Connect Chat Demo</h2>
+    <div class="chat-container">
+      <div class="chat-header">Amazon Connect Chat</div>
 
-      <!-- Input fields -->
-      <input
-        type="text"
-        id="customerName"
-        placeholder="Customer Name"
-        required
-      />
-      <input
-        type="text"
-        id="messageInput"
-        placeholder="Type your message..."
-        disabled
-      />
+      <div class="chat-setup">
+        <div class="input-group">
+          <input
+            type="text"
+            id="customerName"
+            placeholder="请输入您的姓名"
+            value="Customer"
+            required
+          />
+        </div>
 
-      <!-- Control buttons -->
-      <button id="startChatBtn">Start Chat</button>
-      <button id="endChatBtn" disabled>End</button>
-      <button id="sendBtn" disabled>Send</button>
+        <div class="btn-group">
+          <button id="startChatBtn" class="btn btn-primary">开始聊天</button>
+          <button id="endChatBtn" class="btn btn-secondary" disabled>
+            结束聊天
+          </button>
+        </div>
+      </div>
 
-      <!-- Chat display -->
-      <div
-        id="chatMessages"
-        style="
-          border: 1px solid #ccc;
-          height: 300px;
-          overflow-y: auto;
-          padding: 10px;
-          margin-top: 10px;
-        "
-      ></div>
+      <div id="chatMessages" class="chat-messages"></div>
+
+      <div class="message-input-container">
+        <input
+          type="text"
+          id="messageInput"
+          class="message-input"
+          placeholder="输入消息..."
+          disabled
+        />
+        <button id="sendBtn" class="send-btn" disabled>➤</button>
+      </div>
     </div>
 
     <script>
@@ -58,6 +287,9 @@
           alert("Please enter customer name");
           return;
         }
+
+        // 禁用开始聊天按钮，防止重复点击
+        startChatBtn.disabled = true;
 
         connect.ChatSession.setGlobalConfig({ region: "us-east-1" });
 
@@ -177,6 +409,8 @@
           chatSession.onConnectionEstablished(() => {
             displayMessage("System", "Chat connected successfully");
             enableChatControls();
+            // 高亮结束聊天按钮
+            endChatBtn.classList.add('highlight');
           });
 
           chatSession.onConnectionBroken(() => {
@@ -222,6 +456,8 @@
           console.error("Failed to start chat:", error);
           displayMessage("System", `Error: ${error.message}`);
           alert("Failed to start chat: " + error.message);
+          // 恢复开始聊天按钮为可点击状态
+          startChatBtn.disabled = false;
         }
       });
 
@@ -257,6 +493,7 @@
             contentType: "text/plain",
           });
 
+          displayMessage(customerName.value || "Customer", message);
           messageInput.value = "";
         } catch (error) {
           console.error("Failed to send message:", error);
@@ -266,8 +503,21 @@
 
       function displayMessage(sender, message) {
         const messageDiv = document.createElement("div");
-        messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
-        messageDiv.style.marginBottom = "5px";
+        const bubbleDiv = document.createElement("div");
+
+        messageDiv.className = "message";
+        bubbleDiv.className = "message-bubble";
+        bubbleDiv.textContent = message;
+
+        if (sender === "System") {
+          messageDiv.classList.add("system");
+        } else if (sender === customerName.value || sender === "Customer") {
+          messageDiv.classList.add("customer");
+        } else {
+          messageDiv.classList.add("agent");
+        }
+
+        messageDiv.appendChild(bubbleDiv);
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
@@ -283,6 +533,7 @@
       function disableChatControls() {
         startChatBtn.disabled = false;
         endChatBtn.disabled = true;
+        endChatBtn.classList.remove('highlight');
         sendBtn.disabled = true;
         messageInput.disabled = true;
         customerName.disabled = false;
