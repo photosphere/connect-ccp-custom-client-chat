@@ -521,6 +521,16 @@
         return autoLaunch === 'true';
       }
 
+      // 检查并处理URL参数中的customerName
+      function handleCustomerNameParam() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const customerNameParam = urlParams.get('customerName');
+        if (customerNameParam) {
+          customerName.value = customerNameParam;
+          customerName.parentElement.style.display = 'none';
+        }
+      }
+
       // 页面加载时检查是否需要恢复聊天会话或自动启动
       window.addEventListener("load", async () => {
         const existingChatDetails = sessionStorage.getItem(
@@ -547,6 +557,9 @@
           // 如果URL包含autoLaunch=true，自动启动聊天
           startChatBtn.click();
         }
+        
+        // 处理customerName参数
+        handleCustomerNameParam();
         
         // 加载FAQ
         loadFAQ();
