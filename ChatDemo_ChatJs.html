@@ -423,7 +423,14 @@
         configPanel.classList.remove("show");
       });
 
-      // 页面加载时检查是否需要恢复聊天会话
+      // 检查URL参数是否需要自动启动聊天
+      function checkAutoLaunch() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const autoLaunch = urlParams.get('autoLaunch');
+        return autoLaunch === 'true';
+      }
+
+      // 页面加载时检查是否需要恢复聊天会话或自动启动
       window.addEventListener("load", async () => {
         const existingChatDetails = sessionStorage.getItem(
           "chatjs-session-chat-details"
@@ -445,6 +452,9 @@
             console.error("Failed to restore chat session:", error);
             sessionStorage.removeItem("chatjs-session-chat-details");
           }
+        } else if (checkAutoLaunch()) {
+          // 如果URL包含autoLaunch=true，自动启动聊天
+          startChatBtn.click();
         }
       });
 
