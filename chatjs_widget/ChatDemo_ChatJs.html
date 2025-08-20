@@ -287,6 +287,34 @@
         cursor: not-allowed;
       }
 
+      .attach-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 50%;
+        background: #f5f5f5;
+        color: #666;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: all 0.3s;
+      }
+
+      .attach-btn:hover:not(:disabled) {
+        background: #e0e0e0;
+      }
+
+      .attach-btn:disabled {
+        background: #f0f0f0;
+        cursor: not-allowed;
+      }
+
+      .file-input {
+        display: none;
+      }
+
       .faq-container {
         padding: 15px 20px;
         background: #f9f9f9;
@@ -446,6 +474,13 @@
       <div id="chatMessages" class="chat-messages"></div>
 
       <div class="message-input-container">
+        <button id="attachBtn" class="attach-btn" disabled>+</button>
+        <input
+          type="file"
+          id="fileInput"
+          class="file-input"
+          accept=".csv,.doc,.docx,.heic,.jfif,.jpeg,.jpg,.mov,.mp4,.pdf,.png,.ppt,.pptx,.rtf,.txt,.wav,.xls,.xlsx"
+        />
         <input
           type="text"
           id="messageInput"
@@ -468,6 +503,8 @@
       const startChatBtn = document.getElementById("startChatBtn");
       const endChatBtn = document.getElementById("endChatBtn");
       const sendBtn = document.getElementById("sendBtn");
+      const attachBtn = document.getElementById("attachBtn");
+      const fileInput = document.getElementById("fileInput");
       const messageInput = document.getElementById("messageInput");
       const customerName = document.getElementById("customerName");
       const chatMessages = document.getElementById("chatMessages");
@@ -822,6 +859,20 @@
         }
       });
 
+      // Attach button handler
+      attachBtn.addEventListener("click", () => {
+        fileInput.click();
+      });
+
+      // File input handler
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          sendAttachment(file);
+          fileInput.value = '';
+        }
+      });
+
       // Send button handler
       sendBtn.addEventListener("click", () => {
         sendMessage();
@@ -851,6 +902,26 @@
         }
       }
 
+      function sendAttachment(file) {
+        if (!chatSession) return;
+
+        // 检查文件大小
+        if (file.size > 20 * 1024 * 1024) {
+          alert('文件大小不能超过20MB');
+          return;
+        }
+
+        try {
+          chatSession.sendAttachment({
+            attachment: file,
+          });
+          displayMessage('Customer', `发送附件: ${file.name}`);
+        } catch (error) {
+          console.error('Failed to send attachment:', error);
+          alert('Failed to send attachment: ' + error.message);
+        }
+      }
+
       function displayMessage(sender, message) {
         const messageDiv = document.createElement("div");
         const bubbleDiv = document.createElement("div");
@@ -876,6 +947,7 @@
         startChatBtn.disabled = true;
         endChatBtn.disabled = false;
         sendBtn.disabled = false;
+        attachBtn.disabled = false;
         messageInput.disabled = false;
         customerName.disabled = true;
       }
@@ -885,6 +957,7 @@
         endChatBtn.disabled = true;
         endChatBtn.classList.remove("highlight");
         sendBtn.disabled = true;
+        attachBtn.disabled = true;
         messageInput.disabled = true;
         customerName.disabled = false;
         sessionStorage.removeItem("chatjs-session-chat-details");
