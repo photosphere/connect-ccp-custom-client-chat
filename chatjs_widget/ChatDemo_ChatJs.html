@@ -326,6 +326,33 @@
         font-weight: 500;
         color: #666;
         margin-bottom: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .faq-title:hover {
+        color: #07c160;
+      }
+
+      .faq-toggle {
+        font-size: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .faq-toggle.collapsed {
+        transform: rotate(-90deg);
+      }
+
+      .faq-list {
+        transition: all 0.3s ease;
+        overflow: hidden;
+      }
+
+      .faq-list.collapsed {
+        max-height: 0;
+        opacity: 0;
       }
 
       .faq-item {
@@ -467,8 +494,11 @@
       </div>
 
       <div class="faq-container" id="faqContainer">
-        <div class="faq-title">常见问题</div>
-        <div id="faqList"></div>
+        <div class="faq-title" id="faqTitle">
+          常见问题
+          <span class="faq-toggle" id="faqToggle">▼</span>
+        </div>
+        <div id="faqList" class="faq-list"></div>
       </div>
 
       <div id="chatMessages" class="chat-messages"></div>
@@ -516,6 +546,8 @@
       const saveConfig = document.getElementById("saveConfig");
       const cancelConfig = document.getElementById("cancelConfig");
       const faqList = document.getElementById("faqList");
+      const faqTitle = document.getElementById("faqTitle");
+      const faqToggle = document.getElementById("faqToggle");
 
       // 加载FAQ数据
       async function loadFAQ() {
@@ -552,6 +584,23 @@
         const answer = document.getElementById(`faq-answer-${index}`);
         answer.classList.toggle('expanded');
       }
+
+      // 切换FAQ列表显示
+      function toggleFAQList() {
+        faqList.classList.toggle('collapsed');
+        faqToggle.classList.toggle('collapsed');
+      }
+
+      // 自动收缩FAQ（如果是展开状态）
+      function autoCollapseFAQ() {
+        if (!faqList.classList.contains('collapsed')) {
+          faqList.classList.add('collapsed');
+          faqToggle.classList.add('collapsed');
+        }
+      }
+
+      // FAQ标题点击事件
+      faqTitle.addEventListener('click', toggleFAQList);
 
       // 配置面板事件处理
       configBtn.addEventListener("click", (e) => {
@@ -724,6 +773,7 @@
               // Text message
               if (content.ParticipantRole !== "CUSTOMER") {
                 displayMessage(content.DisplayName || "Agent", content.Content);
+                autoCollapseFAQ();
               } else {
                 displayMessage(
                   content.DisplayName || "Customer",
@@ -896,6 +946,7 @@
           });
 
           messageInput.value = "";
+          autoCollapseFAQ();
         } catch (error) {
           console.error("Failed to send message:", error);
           alert("Failed to send message: " + error.message);
