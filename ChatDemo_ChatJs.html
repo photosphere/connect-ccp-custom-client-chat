@@ -287,6 +287,55 @@
         cursor: not-allowed;
       }
 
+      .faq-container {
+        padding: 15px 20px;
+        background: #f9f9f9;
+        border-bottom: 1px solid #e5e5e5;
+      }
+
+      .faq-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      .faq-item {
+        margin-bottom: 8px;
+      }
+
+      .faq-question {
+        color: #07c160;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .faq-question:hover {
+        color: #06ad56;
+      }
+
+      .faq-answer {
+        font-size: 13px;
+        color: #666;
+        margin-left: 15px;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        -webkit-transition: all 0.3s ease;
+        -moz-transition: all 0.3s ease;
+        -ms-transition: all 0.3s ease;
+        -o-transition: all 0.3s ease;
+        transition: all 0.3s ease;
+      }
+
+      .faq-answer.expanded {
+        max-height: 200px;
+        opacity: 1;
+        padding-top: 5px;
+      }
+
       @media (max-width: 768px) {
         .chat-container {
           height: 100vh;
@@ -361,6 +410,11 @@
         </div>
       </div>
 
+      <div class="faq-container" id="faqContainer">
+        <div class="faq-title">常见问题</div>
+        <div id="faqList"></div>
+      </div>
+
       <div id="chatMessages" class="chat-messages"></div>
 
       <div class="message-input-container">
@@ -396,6 +450,43 @@
       const snippetIdInput = document.getElementById("snippetIdInput");
       const saveConfig = document.getElementById("saveConfig");
       const cancelConfig = document.getElementById("cancelConfig");
+      const faqList = document.getElementById("faqList");
+
+      // 加载FAQ数据
+      async function loadFAQ() {
+        try {
+          const response = await fetch('./faq.csv');
+          const csvText = await response.text();
+          const lines = csvText.trim().split('\n');
+          const faqs = lines.slice(1).map(line => {
+            const [question, answer] = line.split(',');
+            return { question, answer };
+          });
+          displayFAQ(faqs);
+        } catch (error) {
+          console.error('Failed to load FAQ:', error);
+        }
+      }
+
+      // 显示FAQ
+      function displayFAQ(faqs) {
+        faqList.innerHTML = '';
+        faqs.forEach((faq, index) => {
+          const faqItem = document.createElement('div');
+          faqItem.className = 'faq-item';
+          faqItem.innerHTML = `
+            <a class="faq-question" href="#" onclick="toggleFAQ(${index}); return false;">${faq.question}</a>
+            <div class="faq-answer" id="faq-answer-${index}">${faq.answer}</div>
+          `;
+          faqList.appendChild(faqItem);
+        });
+      }
+
+      // 切换FAQ答案显示
+      function toggleFAQ(index) {
+        const answer = document.getElementById(`faq-answer-${index}`);
+        answer.classList.toggle('expanded');
+      }
 
       // 配置面板事件处理
       configBtn.addEventListener("click", (e) => {
@@ -456,6 +547,9 @@
           // 如果URL包含autoLaunch=true，自动启动聊天
           startChatBtn.click();
         }
+        
+        // 加载FAQ
+        loadFAQ();
       });
 
       // Start Chat button handler
