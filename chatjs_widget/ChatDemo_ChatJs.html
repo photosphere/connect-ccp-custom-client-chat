@@ -315,6 +315,25 @@
         display: none;
       }
 
+      .attachment-item {
+        margin: 5px 0;
+        padding: 8px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background: #f9f9f9;
+      }
+
+      .attachment-item a {
+        color: #07c160;
+        text-decoration: none;
+        display: block;
+        margin-top: 5px;
+      }
+
+      .attachment-item a:hover {
+        text-decoration: underline;
+      }
+
       .faq-container {
         padding: 15px 20px;
         background: #f9f9f9;
@@ -461,11 +480,19 @@
           </div>
           <div class="config-group">
             <label>URL:</label>
-            <input type="text" id="urlInput" value="https://duo4kh6u2c.execute-api.us-east-1.amazonaws.com/prod/widget/9393808e-527f-46c7-82c0-11d9a72da4c0/start" />
+            <input
+              type="text"
+              id="urlInput"
+              value="https://duo4kh6u2c.execute-api.us-east-1.amazonaws.com/prod/widget/9393808e-527f-46c7-82c0-11d9a72da4c0/start"
+            />
           </div>
           <div class="config-group">
             <label>Snippet ID:</label>
-            <input type="text" id="snippetIdInput" value="QVFJREFIZ2ZYaENvQWJCb1ZtYmxRNlFMNVJYMlhab3BKY1p0RnRGQ2pJNGhxdnBvemdHSTBtYysvSllKWU9kcU4yeVFTUVQyQUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNdHIrYm5FcDVMM0JuNlFZSUFnRVFnQ3UyVXR3L3k1Z2xITWMzS2NuamM4SFZvZUJHQk0rOEl3YkFadzZNVFFIS0Fmcng1UkdDKzA2UHJ1T1Q6Om5zZGpRK00vY2pwN1NkZVVlbnU4TzcxY2Yrbml3SjhJOGVqYTNhOEl1MWljRWdlbXg1eFcxRmswcjVkZnBlM2piM2FMTWVHZ0RNQ3dMR05QWTAxQnVSeC8yaTZzckF1VXFtRjA1b0NIekQrTEd0aDlPaHlQNjU1cVBsTS80NFloeXZ5Y1lFbTlyNmJpYjJ0M3kxUU5UZk5PQ0hyOXpBST0" />
+            <input
+              type="text"
+              id="snippetIdInput"
+              value="QVFJREFIZ2ZYaENvQWJCb1ZtYmxRNlFMNVJYMlhab3BKY1p0RnRGQ2pJNGhxdnBvemdHSTBtYysvSllKWU9kcU4yeVFTUVQyQUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNdHIrYm5FcDVMM0JuNlFZSUFnRVFnQ3UyVXR3L3k1Z2xITWMzS2NuamM4SFZvZUJHQk0rOEl3YkFadzZNVFFIS0Fmcng1UkdDKzA2UHJ1T1Q6Om5zZGpRK00vY2pwN1NkZVVlbnU4TzcxY2Yrbml3SjhJOGVqYTNhOEl1MWljRWdlbXg1eFcxRmswcjVkZnBlM2piM2FMTWVHZ0RNQ3dMR05QWTAxQnVSeC8yaTZzckF1VXFtRjA1b0NIekQrTEd0aDlPaHlQNjU1cVBsTS80NFloeXZ5Y1lFbTlyNmJpYjJ0M3kxUU5UZk5PQ0hyOXpBST0"
+            />
           </div>
           <div class="config-actions">
             <button class="save-config" id="saveConfig">保存</button>
@@ -527,7 +554,8 @@
       let config = {
         region: "us-east-1",
         url: "https://duo4kh6u2c.execute-api.us-east-1.amazonaws.com/prod/widget/9393808e-527f-46c7-82c0-11d9a72da4c0/start",
-        snippetId: "QVFJREFIZ2ZYaENvQWJCb1ZtYmxRNlFMNVJYMlhab3BKY1p0RnRGQ2pJNGhxdnBvemdHSTBtYysvSllKWU9kcU4yeVFTUVQyQUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNdHIrYm5FcDVMM0JuNlFZSUFnRVFnQ3UyVXR3L3k1Z2xITWMzS2NuamM4SFZvZUJHQk0rOEl3YkFadzZNVFFIS0Fmcng1UkdDKzA2UHJ1T1Q6Om5zZGpRK00vY2pwN1NkZVVlbnU4TzcxY2Yrbml3SjhJOGVqYTNhOEl1MWljRWdlbXg1eFcxRmswcjVkZnBlM2piM2FMTWVHZ0RNQ3dMR05QWTAxQnVSeC8yaTZzckF1VXFtRjA1b0NIekQrTEd0aDlPaHlQNjU1cVBsTS80NFloeXZ5Y1lFbTlyNmJpYjJ0M3kxUU5UZk5PQ0hyOXpBST0"
+        snippetId:
+          "QVFJREFIZ2ZYaENvQWJCb1ZtYmxRNlFMNVJYMlhab3BKY1p0RnRGQ2pJNGhxdnBvemdHSTBtYysvSllKWU9kcU4yeVFTUVQyQUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNdHIrYm5FcDVMM0JuNlFZSUFnRVFnQ3UyVXR3L3k1Z2xITWMzS2NuamM4SFZvZUJHQk0rOEl3YkFadzZNVFFIS0Fmcng1UkdDKzA2UHJ1T1Q6Om5zZGpRK00vY2pwN1NkZVVlbnU4TzcxY2Yrbml3SjhJOGVqYTNhOEl1MWljRWdlbXg1eFcxRmswcjVkZnBlM2piM2FMTWVHZ0RNQ3dMR05QWTAxQnVSeC8yaTZzckF1VXFtRjA1b0NIekQrTEd0aDlPaHlQNjU1cVBsTS80NFloeXZ5Y1lFbTlyNmJpYjJ0M3kxUU5UZk5PQ0hyOXpBST0",
       };
 
       const startChatBtn = document.getElementById("startChatBtn");
@@ -552,25 +580,25 @@
       // 加载FAQ数据
       async function loadFAQ() {
         try {
-          const response = await fetch('./faq.csv');
+          const response = await fetch("./faq.csv");
           const csvText = await response.text();
-          const lines = csvText.trim().split('\n');
-          const faqs = lines.slice(1).map(line => {
-            const [question, answer] = line.split(',');
+          const lines = csvText.trim().split("\n");
+          const faqs = lines.slice(1).map((line) => {
+            const [question, answer] = line.split(",");
             return { question, answer };
           });
           displayFAQ(faqs);
         } catch (error) {
-          console.error('Failed to load FAQ:', error);
+          console.error("Failed to load FAQ:", error);
         }
       }
 
       // 显示FAQ
       function displayFAQ(faqs) {
-        faqList.innerHTML = '';
+        faqList.innerHTML = "";
         faqs.forEach((faq, index) => {
-          const faqItem = document.createElement('div');
-          faqItem.className = 'faq-item';
+          const faqItem = document.createElement("div");
+          faqItem.className = "faq-item";
           faqItem.innerHTML = `
             <a class="faq-question" href="#" onclick="toggleFAQ(${index}); return false;">${faq.question}</a>
             <div class="faq-answer" id="faq-answer-${index}">${faq.answer}</div>
@@ -582,25 +610,25 @@
       // 切换FAQ答案显示
       function toggleFAQ(index) {
         const answer = document.getElementById(`faq-answer-${index}`);
-        answer.classList.toggle('expanded');
+        answer.classList.toggle("expanded");
       }
 
       // 切换FAQ列表显示
       function toggleFAQList() {
-        faqList.classList.toggle('collapsed');
-        faqToggle.classList.toggle('collapsed');
+        faqList.classList.toggle("collapsed");
+        faqToggle.classList.toggle("collapsed");
       }
 
       // 自动收缩FAQ（如果是展开状态）
       function autoCollapseFAQ() {
-        if (!faqList.classList.contains('collapsed')) {
-          faqList.classList.add('collapsed');
-          faqToggle.classList.add('collapsed');
+        if (!faqList.classList.contains("collapsed")) {
+          faqList.classList.add("collapsed");
+          faqToggle.classList.add("collapsed");
         }
       }
 
       // FAQ标题点击事件
-      faqTitle.addEventListener('click', toggleFAQList);
+      faqTitle.addEventListener("click", toggleFAQList);
 
       // 配置面板事件处理
       configBtn.addEventListener("click", (e) => {
@@ -631,17 +659,17 @@
       // 检查URL参数是否需要自动启动聊天
       function checkAutoLaunch() {
         const urlParams = new URLSearchParams(window.location.search);
-        const autoLaunch = urlParams.get('autoLaunch');
-        return autoLaunch === 'true';
+        const autoLaunch = urlParams.get("autoLaunch");
+        return autoLaunch === "true";
       }
 
       // 检查并处理URL参数中的customerName
       function handleCustomerNameParam() {
         const urlParams = new URLSearchParams(window.location.search);
-        const customerNameParam = urlParams.get('customerName');
+        const customerNameParam = urlParams.get("customerName");
         if (customerNameParam) {
           customerName.value = customerNameParam;
-          customerName.parentElement.style.display = 'none';
+          customerName.parentElement.style.display = "none";
         }
       }
 
@@ -671,10 +699,10 @@
           // 如果URL包含autoLaunch=true，自动启动聊天
           startChatBtn.click();
         }
-        
+
         // 处理customerName参数
         handleCustomerNameParam();
-        
+
         // 加载FAQ
         loadFAQ();
       });
@@ -693,27 +721,24 @@
         connect.ChatSession.setGlobalConfig({ region: config.region });
 
         try {
-          const response = await fetch(
-            config.url,
-            {
-              method: "POST",
-              headers: {
-                "x-amz-snippet-id": config.snippetId,
-                "Content-Type": "application/json",
+          const response = await fetch(config.url, {
+            method: "POST",
+            headers: {
+              "x-amz-snippet-id": config.snippetId,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ParticipantDetails: {
+                DisplayName: name,
               },
-              body: JSON.stringify({
-                ParticipantDetails: {
-                  DisplayName: name,
-                },
-                SupportedMessagingContentTypes: [
-                  "text/plain",
-                  "text/markdown",
-                  "application/vnd.amazonaws.connect.message.interactive",
-                  "application/vnd.amazonaws.connect.message.interactive.response",
-                ],
-              }),
-            }
-          );
+              SupportedMessagingContentTypes: [
+                "text/plain",
+                "text/markdown",
+                "application/vnd.amazonaws.connect.message.interactive",
+                "application/vnd.amazonaws.connect.message.interactive.response",
+              ],
+            }),
+          });
 
           if (!response.ok) {
             const errorData = await response.json();
@@ -813,6 +838,13 @@
               // Chat ended
               displayMessage("System", "Chat has ended");
               disableChatControls();
+            } else if (
+              content.Type === "ATTACHMENT" &&
+              content.Attachments &&
+              content.Attachments.length > 0
+            ) {
+              // Handle ATTACHMENT type
+              handleAttachmentMessage(content);
             }
           }
         });
@@ -919,7 +951,7 @@
         const file = e.target.files[0];
         if (file) {
           sendAttachment(file);
-          fileInput.value = '';
+          fileInput.value = "";
         }
       });
 
@@ -958,7 +990,7 @@
 
         // 检查文件大小
         if (file.size > 20 * 1024 * 1024) {
-          alert('文件大小不能超过20MB');
+          alert("文件大小不能超过20MB");
           return;
         }
 
@@ -966,11 +998,41 @@
           chatSession.sendAttachment({
             attachment: file,
           });
-          displayMessage('Customer', `发送附件: ${file.name}`);
+          displayMessage("Customer", `发送附件: ${file.name}`);
         } catch (error) {
-          console.error('Failed to send attachment:', error);
-          alert('Failed to send attachment: ' + error.message);
+          console.error("Failed to send attachment:", error);
+          alert("Failed to send attachment: " + error.message);
         }
+      }
+
+      async function handleAttachmentMessage(content) {
+        const sender =
+          content.ParticipantRole === "CUSTOMER"
+            ? "Customer"
+            : content.DisplayName || "Agent";
+
+        let attachmentContent = "";
+        for (const attachment of content.Attachments) {
+          try {
+            const awsSdkResponse = await chatSession.downloadAttachment({
+              attachmentId: attachment.AttachmentId,
+            });
+            const attachmentUrl = URL.createObjectURL(awsSdkResponse);
+
+            let attachmentElement = "";
+            if (attachment.ContentType === "image/png") {
+              attachmentElement += `<img src="${attachmentUrl}" style="max-width: 100%; height: auto;"></img>`;
+            }
+
+            attachmentElement += `<a href="${attachmentUrl}" download="${attachment.AttachmentName}">${attachment.AttachmentName}</a>`;
+            attachmentContent += `<div class="attachment-item">${attachmentElement}</div>`;
+          } catch (error) {
+            console.error("Failed to download attachment:", error);
+            attachmentContent += `<div class="attachment-item">附件下载失败: ${attachment.AttachmentName}</div>`;
+          }
+        }
+
+        displayAttachmentMessage(sender, attachmentContent);
       }
 
       function displayMessage(sender, message) {
@@ -980,6 +1042,27 @@
         messageDiv.className = "message";
         bubbleDiv.className = "message-bubble";
         bubbleDiv.textContent = message;
+
+        if (sender === "System") {
+          messageDiv.classList.add("system");
+        } else if (sender === customerName.value || sender === "Customer") {
+          messageDiv.classList.add("customer");
+        } else {
+          messageDiv.classList.add("agent");
+        }
+
+        messageDiv.appendChild(bubbleDiv);
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function displayAttachmentMessage(sender, attachmentContent) {
+        const messageDiv = document.createElement("div");
+        const bubbleDiv = document.createElement("div");
+
+        messageDiv.className = "message";
+        bubbleDiv.className = "message-bubble";
+        bubbleDiv.innerHTML = attachmentContent;
 
         if (sender === "System") {
           messageDiv.classList.add("system");
