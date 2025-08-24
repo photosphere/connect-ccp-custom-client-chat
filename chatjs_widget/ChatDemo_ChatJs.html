@@ -558,6 +558,30 @@
           "QVFJREFIZ2ZYaENvQWJCb1ZtYmxRNlFMNVJYMlhab3BKY1p0RnRGQ2pJNGhxdnBvemdHSTBtYysvSllKWU9kcU4yeVFTUVQyQUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNdHIrYm5FcDVMM0JuNlFZSUFnRVFnQ3UyVXR3L3k1Z2xITWMzS2NuamM4SFZvZUJHQk0rOEl3YkFadzZNVFFIS0Fmcng1UkdDKzA2UHJ1T1Q6Om5zZGpRK00vY2pwN1NkZVVlbnU4TzcxY2Yrbml3SjhJOGVqYTNhOEl1MWljRWdlbXg1eFcxRmswcjVkZnBlM2piM2FMTWVHZ0RNQ3dMR05QWTAxQnVSeC8yaTZzckF1VXFtRjA1b0NIekQrTEd0aDlPaHlQNjU1cVBsTS80NFloeXZ5Y1lFbTlyNmJpYjJ0M3kxUU5UZk5PQ0hyOXpBST0",
       };
 
+      // 检查是否启用调试模式
+      const urlParams = new URLSearchParams(window.location.search);
+      const debugMode = urlParams.get('debug') === 'true';
+
+      // 全面的异常处理函数
+      function handleError(error, context = '') {
+        console.error(context, error);
+        if (debugMode) {
+          let errorDetails = context + '\n\n';
+          if (error && typeof error === 'object') {
+            errorDetails += `Message: ${error.message || 'Unknown error'}\n`;
+            if (error.name) errorDetails += `Name: ${error.name}\n`;
+            if (error.code) errorDetails += `Code: ${error.code}\n`;
+            if (error.status) errorDetails += `Status: ${error.status}\n`;
+            if (error.statusText) errorDetails += `StatusText: ${error.statusText}\n`;
+            if (error.stack) errorDetails += `Stack: ${error.stack}\n`;
+            errorDetails += `Full Error Object: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`;
+          } else {
+            errorDetails += `Error: ${String(error)}`;
+          }
+          alert(errorDetails);
+        }
+      }
+
       const startChatBtn = document.getElementById("startChatBtn");
       const endChatBtn = document.getElementById("endChatBtn");
       const sendBtn = document.getElementById("sendBtn");
@@ -589,7 +613,7 @@
           });
           displayFAQ(faqs);
         } catch (error) {
-          console.error("Failed to load FAQ:", error);
+          handleError(error, "Failed to load FAQ:");
         }
       }
 
@@ -692,7 +716,7 @@
             setupChatEventHandlers();
             displayMessage("System", "Chat session restored");
           } catch (error) {
-            console.error("Failed to restore chat session:", error);
+            handleError(error, "Failed to restore chat session:");
             sessionStorage.removeItem("chatjs-session-chat-details");
           }
         } else if (checkAutoLaunch()) {
@@ -774,9 +798,9 @@
           await chatSession.connect();
           setupChatEventHandlers();
         } catch (error) {
-          console.error("Failed to start chat:", error);
+          handleError(error, "Failed to start chat:");
           displayMessage("System", `Error: ${error.message}`);
-          alert("Failed to start chat: " + error.message);
+          if (!debugMode) alert("Failed to start chat: " + error.message);
           // 恢复开始聊天按钮为可点击状态
           startChatBtn.disabled = false;
         }
@@ -884,7 +908,7 @@
                 }
               })
               .catch((error) => {
-                console.log("No chat history available:", error);
+                handleError(error, "No chat history available:");
               });
           }
         });
@@ -980,8 +1004,8 @@
           messageInput.value = "";
           autoCollapseFAQ();
         } catch (error) {
-          console.error("Failed to send message:", error);
-          alert("Failed to send message: " + error.message);
+          handleError(error, "Failed to send message:");
+          if (!debugMode) alert("Failed to send message: " + error.message);
         }
       }
 
@@ -1000,8 +1024,8 @@
           });
           displayMessage("Customer", `发送附件: ${file.name}`);
         } catch (error) {
-          console.error("Failed to send attachment:", error);
-          alert("Failed to send attachment: " + error.message);
+          handleError(error, "Failed to send attachment:");
+          if (!debugMode) alert("Failed to send attachment: " + error.message);
         }
       }
 
@@ -1027,7 +1051,7 @@
             attachmentElement += `<a href="${attachmentUrl}" download="${attachment.AttachmentName}">${attachment.AttachmentName}</a>`;
             attachmentContent += `<div class="attachment-item">${attachmentElement}</div>`;
           } catch (error) {
-            console.error("Failed to download attachment:", error);
+            handleError(error, "Failed to download attachment:");
             attachmentContent += `<div class="attachment-item">附件下载失败: ${attachment.AttachmentName}</div>`;
           }
         }
