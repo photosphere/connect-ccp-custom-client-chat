@@ -601,6 +601,26 @@
       const faqTitle = document.getElementById("faqTitle");
       const faqToggle = document.getElementById("faqToggle");
 
+      // 存储greeting数据
+      let greetingData = new Map();
+
+      // 加载greeting数据
+      async function loadGreeting() {
+        try {
+          const response = await fetch("./greeting.csv");
+          const csvText = await response.text();
+          const lines = csvText.trim().split("\n");
+          lines.slice(1).forEach((line) => {
+            const [message, response] = line.split(",");
+            if (message) {
+              greetingData.set(message.toLowerCase().trim(), response ? response.trim() : "");
+            }
+          });
+        } catch (error) {
+          handleError(error, "Failed to load greeting:");
+        }
+      }
+
       // 加载FAQ数据
       async function loadFAQ() {
         try {
@@ -727,8 +747,9 @@
         // 处理customerName参数
         handleCustomerNameParam();
 
-        // 加载FAQ
+        // 加载FAQ和greeting数据
         loadFAQ();
+        loadGreeting();
       });
 
       // Start Chat button handler
@@ -994,6 +1015,18 @@
       function sendMessage() {
         const message = messageInput.value.trim();
         if (!message || !chatSession) return;
+
+        // 检查消息是否在greeting.csv中
+        const lowerMessage = message.toLowerCase();
+        if (greetingData.has(lowerMessage)) {
+          displayMessage("Customer", message);
+          const response = greetingData.get(lowerMessage);
+          const replyMessage = response || (message + " how can I help you today");
+          displayMessage("Agent", replyMessage);
+          messageInput.value = "";
+          autoCollapseFAQ();
+          return;
+        }
 
         try {
           chatSession.sendMessage({
