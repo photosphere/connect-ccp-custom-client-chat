@@ -714,8 +714,9 @@
       const orderCancel = document.getElementById("orderCancel");
       const orderSubmit = document.getElementById("orderSubmit");
 
-      // 存储greeting数据
+      // 存储greeting和response数据
       let greetingData = new Map();
+      let responseData = new Map();
 
       // 加载greeting数据
       async function loadGreeting() {
@@ -724,16 +725,35 @@
           const csvText = await response.text();
           const lines = csvText.trim().split("\n");
           lines.slice(1).forEach((line) => {
-            const [message, response] = line.split(",");
+            const [message, responseKey] = line.split(",");
             if (message) {
               greetingData.set(
                 message.toLowerCase().trim(),
-                response ? response.trim() : ""
+                responseKey ? responseKey.trim() : "default"
               );
             }
           });
         } catch (error) {
           handleError(error, "Failed to load greeting:");
+        }
+      }
+
+      // 加载response数据
+      async function loadResponse() {
+        try {
+          const response = await fetch("./response.csv");
+          const csvText = await response.text();
+          const lines = csvText.trim().split("\n");
+          lines.slice(1).forEach((line) => {
+            const commaIndex = line.indexOf(",");
+            if (commaIndex > 0) {
+              const key = line.substring(0, commaIndex).trim();
+              const value = line.substring(commaIndex + 1).replace(/^"|"$/g, '').trim();
+              responseData.set(key, value.split(","));
+            }
+          });
+        } catch (error) {
+          handleError(error, "Failed to load response:");
         }
       }
 
@@ -874,9 +894,10 @@
         // 处理customerName参数
         handleCustomerNameParam();
 
-        // 加载FAQ和greeting数据
+        // 加载FAQ、greeting和response数据
         loadFAQ();
         loadGreeting();
+        loadResponse();
       });
 
       // Start Chat button handler
@@ -1188,9 +1209,9 @@
         const lowerMessage = message.toLowerCase();
         if (greetingData.has(lowerMessage)) {
           displayMessage("Customer", message);
-          const response = greetingData.get(lowerMessage);
-          const replyMessage =
-            response || message + " how can I help you today";
+          const responseKey = greetingData.get(lowerMessage);
+          const responses = responseData.get(responseKey) || responseData.get("default");
+          const replyMessage = responses ? responses[Math.floor(Math.random() * responses.length)] : "How can I help you today?";
           displayMessage("Agent", replyMessage);
           messageInput.value = "";
           autoCollapseFAQ();
