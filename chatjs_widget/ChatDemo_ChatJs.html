@@ -704,6 +704,11 @@
       function checkAutoLaunch() {
         const urlParams = new URLSearchParams(window.location.search);
         const autoLaunch = urlParams.get("autoLaunch");
+        if (autoLaunch === "true") {
+          // 隐藏开始聊天和结束聊天按钮
+          startChatBtn.style.display = "none";
+          endChatBtn.style.display = "none";
+        }
         return autoLaunch === "true";
       }
 
@@ -719,6 +724,9 @@
 
       // 页面加载时检查是否需要恢复聊天会话或自动启动
       window.addEventListener("load", async () => {
+        // 检查是否需要隐藏按钮
+        checkAutoLaunch();
+        
         const existingChatDetails = sessionStorage.getItem(
           "chatjs-session-chat-details"
         );
@@ -739,9 +747,12 @@
             handleError(error, "Failed to restore chat session:");
             sessionStorage.removeItem("chatjs-session-chat-details");
           }
-        } else if (checkAutoLaunch()) {
-          // 如果URL包含autoLaunch=true，自动启动聊天
-          startChatBtn.click();
+        } else {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get("autoLaunch") === "true") {
+            // 如果URL包含autoLaunch=true，自动启动聊天
+            startChatBtn.click();
+          }
         }
 
         // 处理customerName参数
