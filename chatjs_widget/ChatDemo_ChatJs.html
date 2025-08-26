@@ -315,6 +315,93 @@
         display: none;
       }
 
+      .order-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 50%;
+        background: #f5f5f5;
+        color: #666;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition: all 0.3s;
+      }
+
+      .order-btn:hover:not(:disabled) {
+        background: #e0e0e0;
+      }
+
+      .order-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      }
+
+      .order-modal.show {
+        display: flex;
+      }
+
+      .order-modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .order-modal h3 {
+        margin: 0 0 15px 0;
+        font-size: 18px;
+        color: #333;
+      }
+
+      .order-modal textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        resize: vertical;
+        height: 80px;
+        font-family: inherit;
+      }
+
+      .order-modal-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .order-modal-actions button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .order-cancel {
+        background: #f5f5f5;
+        color: #333;
+      }
+
+      .order-submit {
+        background: #07c160;
+        color: white;
+      }
+
       .attachment-item {
         margin: 5px 0;
         padding: 8px;
@@ -538,6 +625,7 @@
           class="file-input"
           accept=".csv,.doc,.docx,.heic,.jfif,.jpeg,.jpg,.mov,.mp4,.pdf,.png,.ppt,.pptx,.rtf,.txt,.wav,.xls,.xlsx"
         />
+        <button id="orderBtn" class="order-btn">🔍</button>
         <input
           type="text"
           id="messageInput"
@@ -546,6 +634,21 @@
           disabled
         />
         <button id="sendBtn" class="send-btn" disabled>➤</button>
+      </div>
+    </div>
+
+    <!-- 订单查询弹窗 -->
+    <div id="orderModal" class="order-modal">
+      <div class="order-modal-content">
+        <h3>查询订单状态</h3>
+        <textarea
+          id="orderInput"
+          placeholder="请输入订单号或订单描述信息"
+        ></textarea>
+        <div class="order-modal-actions">
+          <button id="orderCancel" class="order-cancel">取消</button>
+          <button id="orderSubmit" class="order-submit">提交</button>
+        </div>
       </div>
     </div>
 
@@ -560,21 +663,26 @@
 
       // 检查是否启用调试模式
       const urlParams = new URLSearchParams(window.location.search);
-      const debugMode = urlParams.get('debug') === 'true';
+      const debugMode = urlParams.get("debug") === "true";
 
       // 全面的异常处理函数
-      function handleError(error, context = '') {
+      function handleError(error, context = "") {
         console.error(context, error);
         if (debugMode) {
-          let errorDetails = context + '\n\n';
-          if (error && typeof error === 'object') {
-            errorDetails += `Message: ${error.message || 'Unknown error'}\n`;
+          let errorDetails = context + "\n\n";
+          if (error && typeof error === "object") {
+            errorDetails += `Message: ${error.message || "Unknown error"}\n`;
             if (error.name) errorDetails += `Name: ${error.name}\n`;
             if (error.code) errorDetails += `Code: ${error.code}\n`;
             if (error.status) errorDetails += `Status: ${error.status}\n`;
-            if (error.statusText) errorDetails += `StatusText: ${error.statusText}\n`;
+            if (error.statusText)
+              errorDetails += `StatusText: ${error.statusText}\n`;
             if (error.stack) errorDetails += `Stack: ${error.stack}\n`;
-            errorDetails += `Full Error Object: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`;
+            errorDetails += `Full Error Object: ${JSON.stringify(
+              error,
+              Object.getOwnPropertyNames(error),
+              2
+            )}`;
           } else {
             errorDetails += `Error: ${String(error)}`;
           }
@@ -600,6 +708,11 @@
       const faqList = document.getElementById("faqList");
       const faqTitle = document.getElementById("faqTitle");
       const faqToggle = document.getElementById("faqToggle");
+      const orderBtn = document.getElementById("orderBtn");
+      const orderModal = document.getElementById("orderModal");
+      const orderInput = document.getElementById("orderInput");
+      const orderCancel = document.getElementById("orderCancel");
+      const orderSubmit = document.getElementById("orderSubmit");
 
       // 存储greeting数据
       let greetingData = new Map();
@@ -613,7 +726,10 @@
           lines.slice(1).forEach((line) => {
             const [message, response] = line.split(",");
             if (message) {
-              greetingData.set(message.toLowerCase().trim(), response ? response.trim() : "");
+              greetingData.set(
+                message.toLowerCase().trim(),
+                response ? response.trim() : ""
+              );
             }
           });
         } catch (error) {
@@ -726,7 +842,7 @@
       window.addEventListener("load", async () => {
         // 检查是否需要隐藏按钮
         checkAutoLaunch();
-        
+
         const existingChatDetails = sessionStorage.getItem(
           "chatjs-session-chat-details"
         );
@@ -1023,6 +1139,47 @@
         }
       });
 
+      // Order query button handler
+      orderBtn.addEventListener("click", () => {
+        orderModal.classList.add("show");
+        orderInput.focus();
+      });
+
+      // Order modal handlers
+      orderCancel.addEventListener("click", () => {
+        orderModal.classList.remove("show");
+        orderInput.value = "";
+      });
+
+      orderSubmit.addEventListener("click", () => {
+        const orderInfo = orderInput.value.trim();
+        if (orderInfo) {
+          displayMessage("Customer", `查询订单: ${orderInfo}`);
+          displayMessage(
+            "Agent",
+            `订单查询结果:
+
+订单号: ORD-2025-001
+状态: 已发货
+物流信息:
+- 2025-08-15 10:30 商品已出库
+- 2025-08-15 14:20 已到达分拣中心
+- 2025-08-26 09:15 正在配送中
+预计今日下午送达`
+          );
+        }
+        orderModal.classList.remove("show");
+        orderInput.value = "";
+      });
+
+      // Close modal when clicking outside
+      orderModal.addEventListener("click", (e) => {
+        if (e.target === orderModal) {
+          orderModal.classList.remove("show");
+          orderInput.value = "";
+        }
+      });
+
       function sendMessage() {
         const message = messageInput.value.trim();
         if (!message || !chatSession) return;
@@ -1032,7 +1189,8 @@
         if (greetingData.has(lowerMessage)) {
           displayMessage("Customer", message);
           const response = greetingData.get(lowerMessage);
-          const replyMessage = response || (message + " how can I help you today");
+          const replyMessage =
+            response || message + " how can I help you today";
           displayMessage("Agent", replyMessage);
           messageInput.value = "";
           autoCollapseFAQ();
